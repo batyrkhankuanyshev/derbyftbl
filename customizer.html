@@ -986,7 +986,7 @@ function exportCanvas() {
       const wmW = oc.width * 0.50;
       const wmH = wm.height * (wmW / wm.width);
       const wx  = (oc.width  - wmW) / 2;
-      const wy  = oc.height - wmH - oc.height * 0.04;
+      const wy  = oc.height - wmH - oc.height * 0.15;
       ctx.globalAlpha = 0.55;
       ctx.globalCompositeOperation = 'multiply';
       ctx.drawImage(wm, wx, wy, wmW, wmH);
@@ -996,7 +996,7 @@ function exportCanvas() {
       oc.toBlob(blob => {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'derby-ftbl-jersey.png';
+        a.download = 'derby-' + Math.random().toString(36).slice(2,10) + '.png';
         a.click();
         showToast(`Скачано (${scale}×) — ${oc.width}×${oc.height}px`);
       }, 'image/png');
