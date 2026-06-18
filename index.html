@@ -163,42 +163,52 @@ header {
 .search-input:focus { border-color: var(--black); }
 .search-input::placeholder { color: var(--gray3); }
 
-/* ── SIZE MODAL ── */
-.size-overlay {
+/* ── PREVIEW MODAL ── */
+.preview-overlay {
   display: none; position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.75);
   align-items: center; justify-content: center;
+  padding: 1rem;
 }
-.size-overlay.open { display: flex; }
-.size-modal {
-  background: var(--white); border-radius: 10px;
-  padding: 1.5rem; width: 320px; max-width: 90vw;
+.preview-overlay.open { display: flex; }
+.preview-modal {
+  background: var(--white); border-radius: 12px;
+  overflow: hidden; max-width: 420px; width: 100%;
+  display: flex; flex-direction: column;
 }
-.size-modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
-.size-modal p { font-size: 0.82rem; color: var(--gray2); margin-bottom: 1.2rem; }
-.size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.2rem; }
-.size-btn {
-  padding: 10px 0; font-size: 0.88rem; font-weight: 500;
-  border: 1px solid var(--gray4); border-radius: 6px;
-  background: none; cursor: pointer; font-family: var(--font);
-  transition: border-color 0.15s, background 0.15s;
+.preview-modal img {
+  width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block;
 }
-.size-btn:hover { border-color: var(--black); background: var(--gray5); }
-.size-btn.selected { border-color: var(--black); background: var(--black); color: var(--white); }
-.size-modal-actions { display: flex; gap: 8px; }
-.btn-size-cancel {
-  flex: 1; padding: 9px; font-size: 0.82rem; font-family: var(--font);
-  border: 1px solid var(--gray4); border-radius: 6px;
-  background: none; cursor: pointer; transition: border-color 0.15s;
+.preview-info {
+  padding: 1rem 1.25rem 1.25rem;
+  display: flex; flex-direction: column; gap: 0.75rem;
 }
-.btn-size-cancel:hover { border-color: var(--black); }
-.btn-size-confirm {
-  flex: 2; padding: 9px; font-size: 0.82rem; font-weight: 600; font-family: var(--font);
+.preview-meta { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gray2); }
+.preview-name { font-size: 1rem; font-weight: 600; color: var(--black); }
+.preview-actions { display: flex; gap: 8px; }
+.btn-preview-wa {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
   background: var(--green); color: var(--white);
-  border: none; border-radius: 6px; cursor: pointer;
-  opacity: 0.4; pointer-events: none; transition: opacity 0.15s;
+  font-size: 0.85rem; font-weight: 600; font-family: var(--font);
+  padding: 10px; border: none; border-radius: 6px; cursor: pointer;
+  text-decoration: none; transition: opacity 0.15s;
 }
-.btn-size-confirm.ready { opacity: 1; pointer-events: auto; }
+.btn-preview-wa:hover { opacity: 0.88; }
+.btn-preview-edit {
+  padding: 10px 14px; font-size: 0.85rem; font-family: var(--font);
+  border: 1px solid var(--gray4); border-radius: 6px;
+  background: none; cursor: pointer; text-decoration: none; color: var(--black);
+  transition: border-color 0.15s;
+}
+.btn-preview-edit:hover { border-color: var(--black); }
+.btn-preview-close {
+  position: absolute; top: 1rem; right: 1rem;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(0,0,0,0.5); color: #fff; border: none;
+  font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.preview-overlay { position: fixed; }
+.preview-wrap { position: relative; max-width: 420px; width: 100%; }
 
 /* ── EMPTY STATE ── */
 .empty { text-align: center; padding: 4rem 2rem; color: var(--gray2); font-size: 0.9rem; grid-column: 1/-1; }
@@ -256,24 +266,23 @@ footer {
 
 <div class="catalogue" id="catalogue"></div>
 
-<!-- SIZE MODAL -->
-<div class="size-overlay" id="size-overlay">
-  <div class="size-modal">
-    <h3 id="size-jersey-name">Выберите размер</h3>
-    <p>Размер будет указан в сообщении WhatsApp</p>
-    <div class="size-grid">
-      <button class="size-btn" onclick="selectSize(this)">XS</button>
-      <button class="size-btn" onclick="selectSize(this)">S</button>
-      <button class="size-btn" onclick="selectSize(this)">M</button>
-      <button class="size-btn" onclick="selectSize(this)">L</button>
-      <button class="size-btn" onclick="selectSize(this)">XL</button>
-      <button class="size-btn" onclick="selectSize(this)">XXL</button>
-      <button class="size-btn" onclick="selectSize(this)">3XL</button>
-      <button class="size-btn" onclick="selectSize(this)">4XL</button>
-    </div>
-    <div class="size-modal-actions">
-      <button class="btn-size-cancel" onclick="closeSize()">Отмена</button>
-      <button class="btn-size-confirm" id="size-confirm">Написать в WhatsApp</button>
+<!-- PREVIEW MODAL -->
+<div class="preview-overlay" id="preview-overlay" onclick="if(event.target===this)closePreview()">
+  <div class="preview-wrap">
+    <button class="btn-preview-close" onclick="closePreview()">✕</button>
+    <div class="preview-modal">
+      <img id="preview-img" src="" alt=""/>
+      <div class="preview-info">
+        <span class="preview-meta" id="preview-cat"></span>
+        <span class="preview-name" id="preview-name"></span>
+        <div class="preview-actions">
+          <a class="btn-preview-wa" id="preview-wa" href="#" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.143.564 4.153 1.55 5.888L.058 23.625a.75.75 0 0 0 .906.919l5.9-1.548A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.7-.504-5.25-1.385l-.375-.217-3.875 1.016 1.032-3.767-.23-.386A9.956 9.956 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            Заказать
+          </a>
+          <a class="btn-preview-edit" id="preview-edit" href="#">✏︎ Кастомизировать</a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -284,34 +293,19 @@ footer {
 const WA = '77026526400';
 const WA_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.143.564 4.153 1.55 5.888L.058 23.625a.75.75 0 0 0 .906.919l5.9-1.548A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.7-.504-5.25-1.385l-.375-.217-3.875 1.016 1.032-3.767-.23-.386A9.956 9.956 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`;
 
-let currentJerseyName = '';
-let selectedSize = '';
-
-function openSize(name) {
-  currentJerseyName = name;
-  selectedSize = '';
-  document.getElementById('size-jersey-name').textContent = name;
-  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('size-confirm').classList.remove('ready');
-  document.getElementById('size-overlay').classList.add('open');
+function openPreview(file, name, category) {
+  document.getElementById('preview-img').src = 'jerseys/' + file;
+  document.getElementById('preview-name').textContent = name;
+  document.getElementById('preview-cat').textContent = category;
+  const msg = encodeURIComponent('Здравствуйте! Хочу заказать: ' + name);
+  document.getElementById('preview-wa').href = 'https://wa.me/' + WA + '?text=' + msg;
+  document.getElementById('preview-edit').href = 'customizer.html?jersey=' + encodeURIComponent(file);
+  document.getElementById('preview-overlay').classList.add('open');
 }
-function closeSize() {
-  document.getElementById('size-overlay').classList.remove('open');
+function closePreview() {
+  document.getElementById('preview-overlay').classList.remove('open');
 }
-function selectSize(btn) {
-  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedSize = btn.textContent;
-  document.getElementById('size-confirm').classList.add('ready');
-  document.getElementById('size-confirm').onclick = () => {
-    const msg = encodeURIComponent(`Здравствуйте! Хочу заказать: ${currentJerseyName}, размер ${selectedSize}`);
-    window.open(`https://wa.me/${WA}?text=${msg}`, '_blank');
-    closeSize();
-  };
-}
-document.getElementById('size-overlay').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeSize();
-});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePreview(); });
 
 fetch('jerseys/manifest.json')
   .then(r => r.json())
@@ -346,17 +340,18 @@ fetch('jerseys/manifest.json')
       if (query) list = list.filter(j => j.name.toLowerCase().includes(query) || j.category.toLowerCase().includes(query));
       if (!list.length) { el.innerHTML = '<p class="empty">Ничего не найдено</p>'; return; }
       el.innerHTML = list.map(j => {
+        const n = j.name.replace(/'/g,"\\'"), f = j.file.replace(/'/g,"\\'"), c = j.category.replace(/'/g,"\\'");
+        const msg = encodeURIComponent(`Здравствуйте! Хочу заказать: ${j.name}`);
+        const waUrl = `https://wa.me/${WA}?text=${msg}`;
         const custUrl = `customizer.html?jersey=${encodeURIComponent(j.file)}`;
         return `
           <div class="jersey-card">
-            <img src="jerseys/${j.file}" alt="${j.name}" loading="lazy"/>
+            <img src="jerseys/${j.file}" alt="${j.name}" loading="lazy" style="cursor:zoom-in" onclick="openPreview('${f}','${n}','${c}')"/>
             <div class="card-body">
               <span class="card-category">${j.category}</span>
               <span class="card-name">${j.name}</span>
               <div class="card-actions">
-                <button class="btn-order" onclick="openSize('${j.name.replace(/'/g,"\\'")}')">
-                  ${WA_SVG} Заказать
-                </button>
+                <a class="btn-order" href="${waUrl}" target="_blank">${WA_SVG} Заказать</a>
                 <a class="btn-edit" href="${custUrl}">✏︎</a>
               </div>
             </div>
