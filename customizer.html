@@ -524,6 +524,11 @@ async function loadGalleryManifest() {
     S.galleryData = d.jerseys || [];
     S.allCats = d.categories || ['все'];
     buildCategoryButtons();
+    const param = new URLSearchParams(window.location.search).get('jersey');
+    if (param) {
+      const jersey = S.galleryData.find(j => j.file === param);
+      if (jersey) applyGalleryJersey(jersey);
+    }
   } catch(e) { /* manifest не найден — норм */ }
 }
 loadGalleryManifest();
