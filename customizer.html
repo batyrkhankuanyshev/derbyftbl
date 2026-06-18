@@ -986,7 +986,7 @@ function exportCanvas() {
       const wmW = oc.width * 0.50;
       const wmH = wm.height * (wmW / wm.width);
       const wx  = (oc.width  - wmW) / 2;
-      const wy  = oc.height - wmH - oc.height * 0.15;
+      const wy  = (oc.height - wmH) / 2;
       ctx.globalAlpha = 0.55;
       ctx.globalCompositeOperation = 'multiply';
       ctx.drawImage(wm, wx, wy, wmW, wmH);
